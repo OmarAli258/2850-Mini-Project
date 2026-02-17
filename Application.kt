@@ -1,0 +1,4 @@
+configureRouting()
+configureTemplates()
+configureDatabase()
+configureErrorHandling()
