@@ -3,20 +3,25 @@ package com.example
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import io.ktor.server.plugins.callloging.*
-import org.slf4j.event.Level
+import io.ktor.server.pebble.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 
-fun main(args: Array<String>) {
-    EngineMain.main(args)
-}
+fun main() {
+    embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
 
-fun Application.module() {
-    install(CallLogging) {
-        level = Level.INFO
-    }
+        install(Pebble)
 
-    configureTemplates()
-    configureSessions()
-    configureDatabase()
-    configureRouting()
-}
+        routing {
+            get("/") {
+                call.respond(
+                    PebbleContent(
+                        "home.peb",
+                        mapOf("title" to "Library Home")
+                    )
+                )
+            }
+        }
+
+    }.start(wait = true)
+}   
