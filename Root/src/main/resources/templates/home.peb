@@ -1,0 +1,7 @@
+{% extends "base.peb" %}
+
+{% block content %}
+<h1>Welcome to your mini website</h1>
+<p>This project is now running as a simple book showcase website built with Ktor + Pebble templates.</p>
+<p class="muted">Use the navigation bar to browse books and test login/logout sessions.</p>
+{% endblock %}

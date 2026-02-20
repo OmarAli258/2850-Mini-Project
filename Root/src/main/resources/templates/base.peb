@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title }} | Mini Project</title>
+    <style>
+        body { font-family: Inter, system-ui, sans-serif; margin: 0; background: #f5f7fb; color: #1f2937; }
+        nav { background: #111827; color: white; padding: 1rem 2rem; display: flex; gap: 1rem; align-items: center; }
+        nav a { color: #bfdbfe; text-decoration: none; font-weight: 600; }
+        nav .spacer { margin-left: auto; }
+        main { max-width: 900px; margin: 2rem auto; background: white; padding: 2rem; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+        h1 { margin-top: 0; }
+        .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+        .muted { color: #6b7280; }
+        input { padding: 0.6rem 0.7rem; border: 1px solid #d1d5db; border-radius: 8px; min-width: 260px; }
+        button { background: #2563eb; color: white; border: none; border-radius: 8px; padding: 0.6rem 1rem; cursor: pointer; }
+        .error { color: #b91c1c; font-weight: 600; }
+    </style>
+</head>
+<body>
+<nav>
+    <a href="/">Home</a>
+    <a href="/books">Books</a>
+    <span class="spacer"></span>
+    {% if user %}
+        <span>Welcome, {{ user }}!</span>
+        <form action="/logout" method="post" style="display:inline">
+            <button type="submit">Logout</button>
+        </form>
+    {% else %}
+        <a href="/login">Login</a>
+    {% endif %}
+</nav>
+<main>
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>
