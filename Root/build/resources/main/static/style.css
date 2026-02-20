@@ -1,0 +1,81 @@
+body { font-family: Arial, sans-serif; background: #fff; }
+.frame { width: 760px; margin: 20px auto; border: 2px solid #000; }
+
+.topbar, .footer {
+  border-bottom: 2px solid #000;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.footer {
+  border-top: 2px solid #000;
+  border-bottom: none;
+  font-size: 14px;
+  display: block;
+  padding: 10px 12px;
+}
+.logo-text { font-weight: 700; }
+.toplink { text-decoration: none; color: #000; font-weight: 600; }
+
+.divider { border-top: 2px solid #000; margin: 14px 0; }
+
+/* Home */
+.home { padding: 12px; }
+.home-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.search input { width: 260px; border: 2px solid #000; padding: 4px 6px; }
+.home-body { display: grid; grid-template-columns: 160px 1fr; gap: 14px; }
+
+.genres { border: 2px solid #000; min-height: 360px; }
+.genres-title { border-bottom: 2px solid #000; padding: 8px; font-weight: 700; }
+.genres-list { padding: 8px; display: grid; gap: 6px; }
+.genres-list a { color: #000; text-decoration: none; }
+
+.section-title { font-weight: 700; margin: 6px 0 10px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 90px); gap: 24px; padding-left: 12px; }
+.tile {
+  height: 90px;
+  border: 2px solid #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  color: #000;
+}
+
+/* Center boxes (login/loan/loans) */
+.center { padding: 22px 12px; display: flex; justify-content: center; }
+.login-box, .loan-box, .loans-box { width: 520px; border: 2px solid #000; padding: 20px; }
+
+.login-title { text-align: center; font-weight: 800; color: #1e40ff; margin-bottom: 24px; font-size: 22px; }
+.login-form .row { display: grid; grid-template-columns: 110px 1fr; gap: 10px; align-items: center; margin: 16px 0; }
+.login-form label { color: #1e40ff; font-weight: 700; }
+.login-form input { border: 2px solid #1e40ff; padding: 6px; }
+
+.btn { border: 2px solid #000; padding: 8px 18px; background: #fff; cursor: pointer; text-decoration: none; color: #000; display: inline-block; }
+.btn-outline { border: 2px solid #1e40ff; padding: 6px 14px; text-decoration: none; color: #1e40ff; font-weight: 700; }
+.signup { margin-top: 18px; display: flex; gap: 10px; align-items: center; color: #1e40ff; }
+
+/* Book page */
+.book-page { padding: 16px 12px; }
+.book-title { text-align: center; font-weight: 800; margin-bottom: 14px; }
+.book-top { display: grid; grid-template-columns: 180px 1fr; gap: 20px; align-items: start; padding: 0 20px; }
+.book-image-box { position: relative; width: 160px; }
+.img-placeholder { height: 150px; border: 2px solid #000; display: flex; justify-content: center; align-items: center; }
+.price { position: absolute; right: 6px; bottom: 6px; font-weight: 700; }
+.details-title { font-weight: 800; text-decoration: underline; margin-bottom: 8px; }
+.details-lines div { margin: 6px 0; }
+
+.availability { padding: 0 20px 10px; }
+.availability-title { font-weight: 800; text-decoration: underline; margin-bottom: 10px; }
+.slots { display: flex; gap: 14px; flex-wrap: wrap; }
+.pill { border: 2px solid #000; border-radius: 999px; padding: 8px 14px; background: #fff; cursor: pointer; }
+.loan-now { margin-top: 16px; display: flex; justify-content: flex-end; }
+
+.loan-title { font-weight: 800; margin-bottom: 26px; }
+.loan-lines div { margin: 10px 0; }
+.loan-actions { margin-top: 30px; display: flex; justify-content: flex-end; }
+
+.loans-title { text-align: center; font-weight: 800; text-decoration: underline; margin-bottom: 18px; }
+.loans-item { margin: 24px 0; }
+.indent { margin-left: 20px; }

@@ -1,0 +1,41 @@
+{% extends "base.peb" %}
+{% block title %}Book Details{% endblock %}
+
+{% block content %}
+<div class="book-page">
+
+  <div class="book-title">Book title (ID {{ bookId }})</div>
+
+  <div class="book-top">
+    <div class="book-image-box">
+      <div class="img-placeholder">Book image</div>
+      <div class="price">$25</div>
+    </div>
+
+    <div class="book-details">
+      <div class="details-title">Details</div>
+      <div class="details-lines">
+        <div>description:</div>
+        <div>date &amp; time:</div>
+        <div>location:</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="availability">
+    <div class="availability-title">Availability</div>
+
+    <div class="slots">
+      <button class="pill" type="button">1:00 pm - 2:00 pm</button>
+      <button class="pill" type="button">2:30 pm - 3:30 pm</button>
+      <button class="pill" type="button">4:00 pm - 5:00 pm</button>
+    </div>
+
+    <div class="loan-now">
+      <a class="btn" href="/loan/confirm">Loan Now!</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

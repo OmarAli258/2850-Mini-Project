@@ -1,0 +1,22 @@
+{% extends "base.peb" %}
+{% block title %}My Loans{% endblock %}
+
+{% block content %}
+<div class="center">
+  <div class="loans-box">
+    <div class="loans-title">My Loans</div>
+
+    <div class="loans-item">
+      <div>1- Title:</div>
+      <div class="indent">Due date:</div>
+      <div class="indent">Status:</div>
+    </div>
+
+    <div class="loans-item">
+      <div>2- Title:</div>
+      <div class="indent">Due date:</div>
+      <div class="indent">Status:</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
