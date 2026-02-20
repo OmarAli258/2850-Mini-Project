@@ -1,0 +1,12 @@
+{% extends "base.peb" %}
+
+{% block content %}
+<h1>Book List</h1>
+{% for book in books %}
+    <div class="card">
+        <h3><a href="/books/{{ book.id }}">{{ book.title }}</a></h3>
+        <p class="muted">By {{ book.author }}</p>
+        <p>{{ book.summary }}</p>
+    </div>
+{% endfor %}
+{% endblock %}

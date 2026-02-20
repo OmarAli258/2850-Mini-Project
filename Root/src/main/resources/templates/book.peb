@@ -1,0 +1,8 @@
+{% extends "base.peb" %}
+
+{% block content %}
+<h1>{{ book.title }}</h1>
+<p class="muted">By {{ book.author }}</p>
+<p>{{ book.summary }}</p>
+<p><a href="/books">← Back to all books</a></p>
+{% endblock %}

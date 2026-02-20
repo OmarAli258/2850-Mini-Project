@@ -1,0 +1,11 @@
+{% extends "base.peb" %}
+
+{% block content %}
+<h1>Login</h1>
+<p>Enter any username to create a local session.</p>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+<form action="/login" method="post">
+    <input type="text" name="username" placeholder="Your username" />
+    <button type="submit">Sign in</button>
+</form>
+{% endblock %}
