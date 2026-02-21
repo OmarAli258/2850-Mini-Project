@@ -7,9 +7,10 @@
     <div class="loan-title">Loan confirmed!</div>
 
     <div class="loan-lines">
-      <div>Confirmation:</div>
-      <div>Borrowed Date:</div>
-      <div>Due Date:</div>
+      <div>Confirmation: #{{ loanId }}</div>
+      <div>Book: {{ book.title }}</div>
+      <div>Borrowed Date: {{ checkout }}</div>
+      <div>Due Date: {{ due }}</div>
     </div>
 
     <div class="loan-actions">

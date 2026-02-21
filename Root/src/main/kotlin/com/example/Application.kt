@@ -11,6 +11,9 @@ fun main() {
 }
 
 fun Application.module() {
+    // Make sure the database + tables exist before any route hits it
+    Database.init()
+
     configureTemplates()
     configureRouting()
 }

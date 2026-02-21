@@ -10,10 +10,15 @@
   <div class="frame">
     <div class="topbar">
       <div class="left">
-        <span class="logo-text">Logo Name.</span>
+        <span class="logo-text">{{ libraryName | default("Library") }}</span>
       </div>
       <div class="right">
-        <a class="toplink" href="/login">Sign in</a>
+        {% if user %}
+          <a class="toplink" href="/loans">My loans</a>
+          <a class="toplink" href="/logout" style="margin-left:12px;">Logout</a>
+        {% else %}
+          <a class="toplink" href="/login">Sign in</a>
+        {% endif %}
       </div>
     </div>
 

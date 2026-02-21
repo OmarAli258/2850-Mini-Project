@@ -6,6 +6,8 @@ import io.ktor.server.pebble.*
 import io.ktor.server.response.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
+import io.ktor.http.*
+import java.time.LocalDate
 
 fun Application.configureRouting() {
     routing {
@@ -13,9 +15,32 @@ fun Application.configureRouting() {
         // Serve /static/style.css from src/main/resources/static/style.css
         staticResources("/static", "static")
 
+        fun currentUser(call: ApplicationCall): User? {
+            val raw = call.request.cookies["userId"] ?: return null
+            val id = raw.toIntOrNull() ?: return null
+            return Database.getUserById(id)
+        }
+
         // HOME
         get("/") {
-            call.respond(PebbleContent("home.peb", mapOf("title" to "Home")))
+            val user = currentUser(call)
+            val books = Database.listBooks(limit = 9)
+            val popular = books.take(3)
+            val coming = books.drop(3).take(3)
+            val recent = books.drop(6).take(3)
+            call.respond(
+                PebbleContent(
+                    "home.peb",
+                    mapOf(
+                        "title" to "Home",
+                        "user" to user,
+                        "popular" to popular,
+                        "coming" to coming,
+                        "recent" to recent,
+                        "libraryName" to "Library"
+                    )
+                )
+            )
         }
 
         // LOGIN PAGE
@@ -25,48 +50,95 @@ fun Application.configureRouting() {
                     "login.peb",
                     mapOf(
                         "title" to "Login",
-                        "error" to ""
+                        "libraryName" to "Library"
                     )
                 )
             )
         }
 
-        // LOGIN SUBMIT (simple test login)
+        // LOGIN SUBMIT
         post("/login") {
             val params = call.receiveParameters()
-            val username = (params["username"] ?: "").trim()
+            val email = (params["email"] ?: "").trim()
             val password = (params["password"] ?: "").trim()
 
-            if (username.isBlank() || password.isBlank()) {
+            if (email.isBlank() || password.isBlank()) {
                 call.respond(
                     PebbleContent(
                         "login.peb",
                         mapOf(
                             "title" to "Login",
-                            "error" to "Please enter username and password"
+                            "libraryName" to "Library",
+                            "error" to "Please enter email and password"
                         )
                     )
                 )
-            } else {
-                // No real auth yet — just redirect to books/home
-                call.respondRedirect("/books")
+                return@post
             }
+
+            val user = Database.authenticate(email, password)
+            if (user == null) {
+                call.respond(
+                    PebbleContent(
+                        "login.peb",
+                        mapOf(
+                            "title" to "Login",
+                            "libraryName" to "Library",
+                            "error" to "Wrong email or password (try demo@leeds.ac.uk / password)"
+                        )
+                    )
+                )
+                return@post
+            }
+
+            call.response.cookies.append(
+                Cookie(
+                    name = "userId",
+                    value = user.id.toString(),
+                    path = "/",
+                    httpOnly = true
+                )
+            )
+            call.respondRedirect("/")
         }
 
-        // BOOKS (we just show home for now, wireframe style)
-        get("/books") {
-            call.respond(PebbleContent("home.peb", mapOf("title" to "Home")))
+        get("/logout") {
+            call.response.cookies.append(
+                Cookie(
+                    name = "userId",
+                    value = "",
+                    path = "/",
+                    expires = GMTDate.START
+                )
+            )
+            call.respondRedirect("/")
         }
+
+        // BOOKS (keep route for compatibility)
+        get("/books") { call.respondRedirect("/") }
 
         // BOOK DETAILS
         get("/book/{id}") {
-            val id = call.parameters["id"] ?: "0"
+            val id = call.parameters["id"]?.toIntOrNull()
+            if (id == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid book id")
+                return@get
+            }
+
+            val book = Database.getBook(id)
+            if (book == null) {
+                call.respond(HttpStatusCode.NotFound, "Book not found")
+                return@get
+            }
+
             call.respond(
                 PebbleContent(
                     "book.peb",
                     mapOf(
                         "title" to "Book Details",
-                        "bookId" to id
+                        "user" to currentUser(call),
+                        "book" to book,
+                        "libraryName" to "Library"
                     )
                 )
             )
@@ -74,12 +146,62 @@ fun Application.configureRouting() {
 
         // LOAN CONFIRM
         get("/loan/confirm") {
-            call.respond(PebbleContent("loan_confirm.peb", mapOf("title" to "Loan Confirmed")))
+            val user = currentUser(call)
+            if (user == null) {
+                call.respondRedirect("/login")
+                return@get
+            }
+
+            val bookId = call.request.queryParameters["bookId"]?.toIntOrNull()
+            if (bookId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Missing bookId")
+                return@get
+            }
+            val book = Database.getBook(bookId)
+            if (book == null) {
+                call.respond(HttpStatusCode.NotFound, "Book not found")
+                return@get
+            }
+
+            val checkout = LocalDate.now().toString()
+            val due = LocalDate.now().plusDays(14).toString()
+            val loanId = Database.createLoan(user.id, bookId, checkout, due)
+
+            call.respond(
+                PebbleContent(
+                    "loan_confirm.peb",
+                    mapOf(
+                        "title" to "Loan Confirmed",
+                        "user" to user,
+                        "loanId" to loanId,
+                        "book" to book,
+                        "checkout" to checkout,
+                        "due" to due,
+                        "libraryName" to "Library"
+                    )
+                )
+            )
         }
 
         // MY LOANS
         get("/loans") {
-            call.respond(PebbleContent("loans.peb", mapOf("title" to "My Loans")))
+            val user = currentUser(call)
+            if (user == null) {
+                call.respondRedirect("/login")
+                return@get
+            }
+            val loans = Database.listLoansForUser(user.id)
+            call.respond(
+                PebbleContent(
+                    "loans.peb",
+                    mapOf(
+                        "title" to "My Loans",
+                        "user" to user,
+                        "loans" to loans,
+                        "libraryName" to "Library"
+                    )
+                )
+            )
         }
     }
 }

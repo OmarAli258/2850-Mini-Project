@@ -9,7 +9,12 @@
       <input name="q" type="text" placeholder="Search"/>
     </form>
     <div class="orders">
-      <a href="/loans" class="toplink">My orders</a>
+      {% if user %}
+        <span style="font-weight:700; margin-right:12px;">Hi, {{ user.name }}</span>
+        <a href="/loans" class="toplink">My loans</a>
+      {% else %}
+        <a href="/login" class="toplink">Sign in</a>
+      {% endif %}
     </div>
   </div>
 
@@ -29,9 +34,9 @@
       <div class="section">
         <div class="section-title">Most popular</div>
         <div class="grid3">
-          <a class="tile" href="/book/1">1st</a>
-          <a class="tile" href="/book/2">2nd</a>
-          <a class="tile" href="/book/3">3rd</a>
+          {% for b in popular %}
+            <a class="tile" href="/book/{{ b.id }}">{{ b.title }}</a>
+          {% endfor %}
         </div>
       </div>
 
@@ -40,9 +45,9 @@
       <div class="section">
         <div class="section-title">Coming soon</div>
         <div class="grid3">
-          <a class="tile" href="/book/4"></a>
-          <a class="tile" href="/book/5"></a>
-          <a class="tile" href="/book/6"></a>
+          {% for b in coming %}
+            <a class="tile" href="/book/{{ b.id }}">{{ b.title }}</a>
+          {% endfor %}
         </div>
       </div>
 
@@ -51,9 +56,9 @@
       <div class="section">
         <div class="section-title">Recently viewed</div>
         <div class="grid3">
-          <a class="tile" href="/book/7"></a>
-          <a class="tile" href="/book/8"></a>
-          <a class="tile" href="/book/9"></a>
+          {% for b in recent %}
+            <a class="tile" href="/book/{{ b.id }}">{{ b.title }}</a>
+          {% endfor %}
         </div>
       </div>
     </div>
