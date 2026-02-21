@@ -6,17 +6,19 @@
   <div class="loans-box">
     <div class="loans-title">My Loans</div>
 
-    <div class="loans-item">
-      <div>1- Title:</div>
-      <div class="indent">Due date:</div>
-      <div class="indent">Status:</div>
-    </div>
-
-    <div class="loans-item">
-      <div>2- Title:</div>
-      <div class="indent">Due date:</div>
-      <div class="indent">Status:</div>
-    </div>
+    {% if loans and loans.size > 0 %}
+      {% for l in loans %}
+        <div class="loans-item">
+          <div>{{ loop.index }}- {{ l.book.title }}</div>
+          <div class="indent">Due date: {{ l.returnDate }}</div>
+          <div class="indent">Status: Active</div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="loans-item">
+        <div>You have no loans yet.</div>
+      </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

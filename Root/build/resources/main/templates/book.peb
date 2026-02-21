@@ -4,7 +4,7 @@
 {% block content %}
 <div class="book-page">
 
-  <div class="book-title">Book title (ID {{ bookId }})</div>
+  <div class="book-title">{{ book.title }} (ID {{ book.id }})</div>
 
   <div class="book-top">
     <div class="book-image-box">
@@ -15,9 +15,9 @@
     <div class="book-details">
       <div class="details-title">Details</div>
       <div class="details-lines">
-        <div>description:</div>
-        <div>date &amp; time:</div>
-        <div>location:</div>
+        <div>description: A popular library book.</div>
+        <div>date &amp; time: Available today</div>
+        <div>location: {{ book.location }}</div>
       </div>
     </div>
   </div>
@@ -34,7 +34,7 @@
     </div>
 
     <div class="loan-now">
-      <a class="btn" href="/loan/confirm">Loan Now!</a>
+      <a class="btn" href="/loan/confirm?bookId={{ book.id }}">Loan Now!</a>
     </div>
   </div>
 </div>

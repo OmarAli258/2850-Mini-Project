@@ -7,6 +7,7 @@ import io.ktor.server.response.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import io.ktor.http.*
+import io.ktor.util.date.GMTDate
 import java.time.LocalDate
 
 fun Application.configureRouting() {
@@ -28,12 +29,13 @@ fun Application.configureRouting() {
             val popular = books.take(3)
             val coming = books.drop(3).take(3)
             val recent = books.drop(6).take(3)
+
             call.respond(
                 PebbleContent(
                     "home.peb",
-                    mapOf(
+                    mapOf<String, Any>(
                         "title" to "Home",
-                        "user" to user,
+                        "user" to (user ?: ""),
                         "popular" to popular,
                         "coming" to coming,
                         "recent" to recent,
@@ -48,7 +50,7 @@ fun Application.configureRouting() {
             call.respond(
                 PebbleContent(
                     "login.peb",
-                    mapOf(
+                    mapOf<String, Any>(
                         "title" to "Login",
                         "libraryName" to "Library"
                     )
@@ -66,7 +68,7 @@ fun Application.configureRouting() {
                 call.respond(
                     PebbleContent(
                         "login.peb",
-                        mapOf(
+                        mapOf<String, Any>(
                             "title" to "Login",
                             "libraryName" to "Library",
                             "error" to "Please enter email and password"
@@ -81,7 +83,7 @@ fun Application.configureRouting() {
                 call.respond(
                     PebbleContent(
                         "login.peb",
-                        mapOf(
+                        mapOf<String, Any>(
                             "title" to "Login",
                             "libraryName" to "Library",
                             "error" to "Wrong email or password (try demo@leeds.ac.uk / password)"
@@ -134,9 +136,9 @@ fun Application.configureRouting() {
             call.respond(
                 PebbleContent(
                     "book.peb",
-                    mapOf(
+                    mapOf<String, Any>(
                         "title" to "Book Details",
-                        "user" to currentUser(call),
+                        "user" to (currentUser(call) ?: ""),
                         "book" to book,
                         "libraryName" to "Library"
                     )
@@ -170,7 +172,7 @@ fun Application.configureRouting() {
             call.respond(
                 PebbleContent(
                     "loan_confirm.peb",
-                    mapOf(
+                    mapOf<String, Any>(
                         "title" to "Loan Confirmed",
                         "user" to user,
                         "loanId" to loanId,
@@ -194,7 +196,7 @@ fun Application.configureRouting() {
             call.respond(
                 PebbleContent(
                     "loans.peb",
-                    mapOf(
+                    mapOf<String, Any>(
                         "title" to "My Loans",
                         "user" to user,
                         "loans" to loans,
@@ -205,4 +207,3 @@ fun Application.configureRouting() {
         }
     }
 }
-
