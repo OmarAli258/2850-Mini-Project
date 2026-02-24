@@ -2,104 +2,113 @@ package com.example
 
 import java.sql.Connection
 import java.sql.DriverManager
-import java.sql.ResultSet
+import java.sql.Statement
 
-/**
- * Very small SQLite helper for the mini-project.
- *
- * - Uses a local file `library.db` (created automatically)
- * - Creates tables: users, books, loans
- * - Inserts a bit of seed data if tables are empty
- */
+data class User(val id: Int, val name: String, val email: String)
+data class Book(val id: Int, val title: String, val shelf: String, val description: String)
+data class Loan(val id: Int, val title: String, val checkoutDate: String, val dueDate: String)
+
 object Database {
-    private const val DB_URL = "jdbc:sqlite:library.db"
+    private const val JDBC_URL = "jdbc:sqlite:library.db"
 
     fun init() {
-        // Create tables + seed on startup
         withConnection { conn ->
-            conn.createStatement().use { st ->
-                st.execute(
+            conn.createStatement().use { stmt ->
+                stmt.executeUpdate(
                     """
                     CREATE TABLE IF NOT EXISTS users (
-                        user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
                         name TEXT NOT NULL,
-                        email TEXT NOT NULL UNIQUE,
+                        email TEXT UNIQUE NOT NULL,
                         address TEXT,
                         password TEXT NOT NULL
-                    );
+                    )
                     """.trimIndent()
                 )
 
-                st.execute(
+                stmt.executeUpdate(
                     """
                     CREATE TABLE IF NOT EXISTS books (
-                        book_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
                         title TEXT NOT NULL,
-                        location TEXT NOT NULL
-                    );
+                        shelf TEXT NOT NULL,
+                        description TEXT NOT NULL
+                    )
                     """.trimIndent()
                 )
 
-                st.execute(
+                stmt.executeUpdate(
                     """
                     CREATE TABLE IF NOT EXISTS loans (
-                        loan_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
                         user_id INTEGER NOT NULL,
                         book_id INTEGER NOT NULL,
                         checkout_date TEXT NOT NULL,
-                        return_date TEXT,
-                        FOREIGN KEY(user_id) REFERENCES users(user_id),
-                        FOREIGN KEY(book_id) REFERENCES books(book_id)
-                    );
+                        due_date TEXT NOT NULL,
+                        FOREIGN KEY(user_id) REFERENCES users(id),
+                        FOREIGN KEY(book_id) REFERENCES books(id)
+                    )
                     """.trimIndent()
                 )
             }
 
-            seedIfEmpty(conn)
+            seedBooks(conn)
         }
     }
 
-    private fun seedIfEmpty(conn: Connection) {
-        // Users
-        val userCount = conn.createStatement().use { st ->
-            st.executeQuery("SELECT COUNT(*) AS c FROM users").use { rs ->
-                rs.next(); rs.getInt("c")
+    private fun seedBooks(conn: Connection) {
+        val count = conn.createStatement().use { st ->
+            st.executeQuery("SELECT COUNT(*) FROM books").use { rs ->
+                rs.next()
+                rs.getInt(1)
             }
         }
-        if (userCount == 0) {
-            conn.prepareStatement(
-                "INSERT INTO users(name,email,address,password) VALUES(?,?,?,?)"
-            ).use { ps ->
-                ps.setString(1, "Demo User")
-                ps.setString(2, "demo@leeds.ac.uk")
-                ps.setString(3, "Leeds")
-                ps.setString(4, "password")
+        if (count > 0) return
+
+        val books = listOf(
+            Triple("Clean Code", "Shelf A1", "A popular library book."),
+            Triple("Design Patterns", "Shelf B2", "A popular library book."),
+            Triple("Operating Systems", "Shelf C3", "A popular library book."),
+            Triple("Algorithms", "Shelf D4", "A popular library book."),
+            Triple("Database Systems", "Shelf E5", "A popular library book."),
+            Triple("Kotlin in Action", "Shelf F6", "A popular library book.")
+        )
+
+        conn.prepareStatement("INSERT INTO books(title, shelf, description) VALUES (?,?,?)").use { ps ->
+            for ((title, shelf, desc) in books) {
+                ps.setString(1, title)
+                ps.setString(2, shelf)
+                ps.setString(3, desc)
                 ps.executeUpdate()
             }
         }
+    }
 
-        // Books
-        val bookCount = conn.createStatement().use { st ->
-            st.executeQuery("SELECT COUNT(*) AS c FROM books").use { rs ->
-                rs.next(); rs.getInt("c")
-            }
+    private fun <T> withConnection(block: (Connection) -> T): T {
+        DriverManager.getConnection(JDBC_URL).use { conn ->
+            return block(conn)
         }
-        if (bookCount == 0) {
-            val seed = listOf(
-                "Clean Code" to "Shelf A1",
-                "Design Patterns" to "Shelf B2",
-                "Operating Systems" to "Shelf C3",
-                "Algorithms" to "Shelf D4",
-                "Database Systems" to "Shelf E5",
-                "Kotlin in Action" to "Shelf F6"
-            )
-            conn.prepareStatement("INSERT INTO books(title,location) VALUES(?,?)").use { ps ->
-                for ((title, location) in seed) {
-                    ps.setString(1, title)
-                    ps.setString(2, location)
-                    ps.addBatch()
+    }
+
+    fun createUser(name: String, email: String, address: String?, password: String): Int? {
+        return withConnection { conn ->
+            try {
+                conn.prepareStatement(
+                    "INSERT INTO users(name,email,address,password) VALUES(?,?,?,?)",
+                    Statement.RETURN_GENERATED_KEYS
+                ).use { ps ->
+                    ps.setString(1, name)
+                    ps.setString(2, email)
+                    ps.setString(3, address)
+                    ps.setString(4, password)
+                    ps.executeUpdate()
+
+                    ps.generatedKeys.use { keys ->
+                        if (keys.next()) keys.getInt(1) else null
+                    }
                 }
-                ps.executeBatch()
+            } catch (e: Exception) {
+                null
             }
         }
     }
@@ -107,93 +116,74 @@ object Database {
     fun authenticate(email: String, password: String): User? {
         return withConnection { conn ->
             conn.prepareStatement(
-                "SELECT user_id,name,email,address FROM users WHERE email=? AND password=?"
+                "SELECT id,name,email FROM users WHERE email=? AND password=?"
             ).use { ps ->
                 ps.setString(1, email)
                 ps.setString(2, password)
+
                 ps.executeQuery().use { rs ->
-                    if (!rs.next()) return@withConnection null
-                    User(
-                        id = rs.getInt("user_id"),
-                        name = rs.getString("name"),
-                        email = rs.getString("email"),
-                        address = rs.getString("address")
-                    )
+                    if (rs.next()) {
+                        User(
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getString("email")
+                        )
+                    } else null
                 }
             }
         }
     }
 
-    fun getUserById(userId: Int): User? {
+    fun listBooks(limit: Int): List<Book> {
         return withConnection { conn ->
-            conn.prepareStatement(
-                "SELECT user_id,name,email,address FROM users WHERE user_id=?"
-            ).use { ps ->
-                ps.setInt(1, userId)
-                ps.executeQuery().use { rs ->
-                    if (!rs.next()) return@withConnection null
-                    User(
-                        id = rs.getInt("user_id"),
-                        name = rs.getString("name"),
-                        email = rs.getString("email"),
-                        address = rs.getString("address")
-                    )
-                }
-            }
-        }
-    }
-
-    fun listBooks(limit: Int = 12): List<Book> {
-        return withConnection { conn ->
-            conn.prepareStatement(
-                "SELECT book_id,title,location FROM books ORDER BY book_id ASC LIMIT ?"
-            ).use { ps ->
+            conn.prepareStatement("SELECT * FROM books LIMIT ?").use { ps ->
                 ps.setInt(1, limit)
                 ps.executeQuery().use { rs ->
-                    rs.toList { r ->
-                        Book(
-                            id = r.getInt("book_id"),
-                            title = r.getString("title"),
-                            location = r.getString("location")
+                    val books = mutableListOf<Book>()
+                    while (rs.next()) {
+                        books.add(
+                            Book(
+                                rs.getInt("id"),
+                                rs.getString("title"),
+                                rs.getString("shelf"),
+                                rs.getString("description")
+                            )
                         )
                     }
+                    books
                 }
             }
         }
     }
 
-    fun getBook(bookId: Int): Book? {
+    fun getBook(id: Int): Book? {
         return withConnection { conn ->
-            conn.prepareStatement(
-                "SELECT book_id,title,location FROM books WHERE book_id=?"
-            ).use { ps ->
-                ps.setInt(1, bookId)
+            conn.prepareStatement("SELECT * FROM books WHERE id=?").use { ps ->
+                ps.setInt(1, id)
                 ps.executeQuery().use { rs ->
-                    if (!rs.next()) return@withConnection null
-                    Book(
-                        id = rs.getInt("book_id"),
-                        title = rs.getString("title"),
-                        location = rs.getString("location")
-                    )
+                    if (rs.next()) {
+                        Book(
+                            rs.getInt("id"),
+                            rs.getString("title"),
+                            rs.getString("shelf"),
+                            rs.getString("description")
+                        )
+                    } else null
                 }
             }
         }
     }
 
-    fun createLoan(userId: Int, bookId: Int, checkoutDate: String, returnDate: String?): Int {
-        return withConnection { conn ->
+    fun createLoan(userId: Int, bookId: Int, checkoutDate: String, dueDate: String) {
+        withConnection { conn ->
             conn.prepareStatement(
-                "INSERT INTO loans(user_id,book_id,checkout_date,return_date) VALUES(?,?,?,?)",
-                java.sql.Statement.RETURN_GENERATED_KEYS
+                "INSERT INTO loans(user_id,book_id,checkout_date,due_date) VALUES(?,?,?,?)"
             ).use { ps ->
                 ps.setInt(1, userId)
                 ps.setInt(2, bookId)
                 ps.setString(3, checkoutDate)
-                ps.setString(4, returnDate)
+                ps.setString(4, dueDate)
                 ps.executeUpdate()
-                ps.generatedKeys.use { keys ->
-                    if (keys.next()) keys.getInt(1) else 0
-                }
             }
         }
     }
@@ -202,63 +192,28 @@ object Database {
         return withConnection { conn ->
             conn.prepareStatement(
                 """
-                SELECT l.loan_id, l.checkout_date, l.return_date,
-                       b.book_id, b.title, b.location
-                FROM loans l
-                JOIN books b ON b.book_id = l.book_id
-                WHERE l.user_id=?
-                ORDER BY l.loan_id DESC
+                SELECT loans.id, books.title, checkout_date, due_date
+                FROM loans
+                JOIN books ON loans.book_id = books.id
+                WHERE user_id = ?
                 """.trimIndent()
             ).use { ps ->
                 ps.setInt(1, userId)
                 ps.executeQuery().use { rs ->
-                    rs.toList { r ->
-                        Loan(
-                            id = r.getInt("loan_id"),
-                            checkoutDate = r.getString("checkout_date"),
-                            returnDate = r.getString("return_date"),
-                            book = Book(
-                                id = r.getInt("book_id"),
-                                title = r.getString("title"),
-                                location = r.getString("location")
+                    val loans = mutableListOf<Loan>()
+                    while (rs.next()) {
+                        loans.add(
+                            Loan(
+                                rs.getInt("id"),
+                                rs.getString("title"),
+                                rs.getString("checkout_date"),
+                                rs.getString("due_date")
                             )
                         )
                     }
+                    loans
                 }
             }
         }
     }
-
-    private inline fun <T> withConnection(block: (Connection) -> T): T {
-        DriverManager.getConnection(DB_URL).use { conn ->
-            conn.autoCommit = true
-            return block(conn)
-        }
-    }
-
-    private inline fun <T> ResultSet.toList(mapper: (ResultSet) -> T): List<T> {
-        val out = mutableListOf<T>()
-        while (this.next()) out += mapper(this)
-        return out
-    }
 }
-
-data class User(
-    val id: Int,
-    val name: String,
-    val email: String,
-    val address: String?
-)
-
-data class Book(
-    val id: Int,
-    val title: String,
-    val location: String
-)
-
-data class Loan(
-    val id: Int,
-    val checkoutDate: String,
-    val returnDate: String?,
-    val book: Book
-)

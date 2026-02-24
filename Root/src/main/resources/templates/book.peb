@@ -1,41 +1,52 @@
-{% extends "base.peb" %}
-{% block title %}Book Details{% endblock %}
+{% extends "base" %}
 
 {% block content %}
-<div class="book-page">
-
-  <div class="book-title">{{ book.title }} (ID {{ book.id }})</div>
-
-  <div class="book-top">
-    <div class="book-image-box">
-      <div class="img-placeholder">Book image</div>
-      <div class="price">$25</div>
-    </div>
-
-    <div class="book-details">
-      <div class="details-title">Details</div>
-      <div class="details-lines">
-        <div>description: A popular library book.</div>
-        <div>date &amp; time: Available today</div>
-        <div>location: {{ book.location }}</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <div class="availability">
-    <div class="availability-title">Availability</div>
-
-    <div class="slots">
-      <button class="pill" type="button">1:00 pm - 2:00 pm</button>
-      <button class="pill" type="button">2:30 pm - 3:30 pm</button>
-      <button class="pill" type="button">4:00 pm - 5:00 pm</button>
-    </div>
-
-    <div class="loan-now">
-      <a class="btn" href="/loan/confirm?bookId={{ book.id }}">Loan Now!</a>
-    </div>
-  </div>
+<div class="breadcrumb">
+    <a class="link" href="/">← Back to books</a>
 </div>
+
+<section class="book">
+    <div class="book__main">
+        <div class="book__header">
+            <div class="badge">Shelf {{ book.shelf }}</div>
+            <h1 class="book__title">{{ book.title }}</h1>
+            <div class="book__desc">{{ book.description }}</div>
+        </div>
+
+        <div class="book__panel">
+            <h3 class="book__panelTitle">Availability</h3>
+            <div class="chips">
+                <span class="chip">1:00pm – 2:00pm</span>
+                <span class="chip">2:30pm – 3:30pm</span>
+                <span class="chip">4:00pm – 5:00pm</span>
+            </div>
+
+            <div class="divider"></div>
+
+            {% if userId %}
+                <form method="post" action="/book/{{ book.id }}/loan">
+                    <button class="btn btn--primary btn--block" type="submit">Loan now</button>
+                </form>
+                <div class="muted center">This will add the loan to your account.</div>
+            {% else %}
+                <a class="btn btn--primary btn--block" href="/login">Sign in to loan</a>
+                <a class="btn btn--ghost btn--block" href="/signup">Create account</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <aside class="book__side">
+        <div class="sideCard">
+            <div class="sideCard__title">Contact</div>
+            <div class="sideCard__row"><span class="muted">Phone</span> +44 1234567890</div>
+            <div class="sideCard__row"><span class="muted">Email</span> libraryname@leeds.ac.uk</div>
+        </div>
+
+        <div class="sideCard">
+            <div class="sideCard__title">Book info</div>
+            <div class="sideCard__row"><span class="muted">Book ID</span> {{ book.id }}</div>
+            <div class="sideCard__row"><span class="muted">Shelf</span> {{ book.shelf }}</div>
+        </div>
+    </aside>
+</section>
 {% endblock %}

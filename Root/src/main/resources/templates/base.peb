@@ -1,33 +1,45 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>{% block title %}Library{% endblock %}</title>
-  <link rel="stylesheet" href="/static/style.css">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title ?: "COMP2850 Library" }}</title>
+    <link rel="stylesheet" href="/static/style.css" />
 </head>
+
 <body>
-  <div class="frame">
-    <div class="topbar">
-      <div class="left">
-        <span class="logo-text">{{ libraryName | default("Library") }}</span>
-      </div>
-      <div class="right">
-        {% if user %}
-          <a class="toplink" href="/loans">My loans</a>
-          <a class="toplink" href="/logout" style="margin-left:12px;">Logout</a>
-        {% else %}
-          <a class="toplink" href="/login">Sign in</a>
-        {% endif %}
-      </div>
-    </div>
+<header class="topbar">
+    <div class="container topbar__inner">
+        <a class="brand" href="/">
+            <span class="brand__logo">📚</span>
+            <span class="brand__text">{{ libraryName ?: "COMP2850 Library" }}</span>
+        </a>
 
+        <nav class="nav">
+            <a class="nav__link" href="/">Home</a>
+            {% if userId %}
+                <a class="nav__link" href="/loans">My Loans</a>
+                <a class="btn btn--ghost" href="/logout">Logout</a>
+            {% else %}
+                <a class="btn btn--ghost" href="/login">Sign in</a>
+                <a class="btn btn--primary" href="/signup">Sign up</a>
+            {% endif %}
+        </nav>
+    </div>
+</header>
+
+<main class="container">
     {% block content %}{% endblock %}
+</main>
 
-    <div class="footer">
-      <div>Contact: +44 1234567890</div>
-      <div>Email: libraryname@leeds.ac.uk</div>
+<footer class="footer">
+    <div class="container footer__inner">
+        <div>
+            <div class="footer__title">COMP2850 Library</div>
+            <div class="footer__muted">Simple demo system (Ktor + Pebble + SQLite)</div>
+        </div>
+        <div class="footer__muted">© {{ "now" | date("yyyy") }}</div>
     </div>
-  </div>
+</footer>
 </body>
 </html>

@@ -1,24 +1,39 @@
-{% extends "base.peb" %}
-{% block title %}My Loans{% endblock %}
+{% extends "base" %}
 
 {% block content %}
-<div class="center">
-  <div class="loans-box">
-    <div class="loans-title">My Loans</div>
+<section class="section">
+    <div class="section__header">
+        <h1 class="section__title">My Loans</h1>
+        <div class="section__muted">Loans for your account</div>
+    </div>
 
-    {% if loans and loans.size > 0 %}
-      {% for l in loans %}
-        <div class="loans-item">
-          <div>{{ loop.index }}- {{ l.book.title }}</div>
-          <div class="indent">Due date: {{ l.returnDate }}</div>
-          <div class="indent">Status: Active</div>
+    {% if loans | length == 0 %}
+        <div class="empty">
+            <div class="empty__title">No loans yet</div>
+            <div class="empty__text">Go back to the library and loan a book.</div>
+            <a class="btn btn--primary" href="/">Browse books</a>
         </div>
-      {% endfor %}
     {% else %}
-      <div class="loans-item">
-        <div>You have no loans yet.</div>
-      </div>
+        <div class="tableWrap">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Book</th>
+                    <th>Checkout</th>
+                    <th>Due</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for loan in loans %}
+                    <tr>
+                        <td class="td-title">{{ loan.bookTitle ?: loan.title }}</td>
+                        <td>{{ loan.checkoutDate }}</td>
+                        <td>{{ loan.dueDate }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% endif %}
-  </div>
-</div>
+</section>
 {% endblock %}

@@ -1,22 +1,18 @@
 package com.example
 
 import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
+import io.ktor.server.sessions.*
+import io.ktor.server.netty.EngineMain
 
-fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
-        module()
-    }.start(wait = true)
-}
+fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 fun Application.module() {
-    // Make sure the database + tables exist before any route hits it
     Database.init()
+
+    install(Sessions) {
+        cookie<UserSession>("USER_SESSION")
+    }
 
     configureTemplates()
     configureRouting()
 }
-
-
- 

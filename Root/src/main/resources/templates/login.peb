@@ -1,33 +1,28 @@
-{% extends "base.peb" %}
-{% block title %}Login{% endblock %}
+{% extends "base" %}
 
 {% block content %}
-<div class="center">
-  <div class="login-box">
-    <div class="login-title">{{ libraryName | default("Library") }}</div>
+<div class="auth">
+    <div class="panel">
+        <h1 class="panel__title">Sign in</h1>
+        <p class="panel__subtitle">Welcome back — please enter your details.</p>
 
-    {% if error and error != "" %}
-      <p style="color:red; font-weight:700;">{{ error }}</p>
-    {% endif %}
+        {% if error %}
+            <div class="alert alert--error">{{ error }}</div>
+        {% endif %}
 
-    <form class="login-form" action="/login" method="post">
-      <div class="row">
-        <label>Email:</label>
-        <input type="email" name="email" placeholder="demo@leeds.ac.uk" required>
-      </div>
+        <form method="post" action="/login" class="form">
+            <label class="label">Email</label>
+            <input class="input" type="email" name="email" required placeholder="you@example.com">
 
-      <div class="row">
-        <label>Password:</label>
-        <input type="password" name="password" placeholder="password" required>
-      </div>
+            <label class="label">Password</label>
+            <input class="input" type="password" name="password" required placeholder="••••••••">
 
-      <button class="btn" type="submit">Sign in</button>
-    </form>
+            <button class="btn btn--primary btn--block" type="submit">Sign in</button>
+        </form>
 
-    <div class="signup">
-      <span>New user:</span>
-      <a class="btn-outline" href="#">Sign Up</a>
+        <div class="panel__footer">
+            Don’t have an account? <a class="link" href="/signup">Create one</a>
+        </div>
     </div>
-  </div>
 </div>
 {% endblock %}

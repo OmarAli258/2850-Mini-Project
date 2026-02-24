@@ -1,21 +1,21 @@
-{% extends "base.peb" %}
-{% block title %}Loan Details{% endblock %}
+{% extends "base" %}
 
 {% block content %}
-<div class="center">
-  <div class="loan-box">
-    <div class="loan-title">Loan confirmed!</div>
+<div class="confirm">
+    <div class="confirm__card">
+        <div class="confirm__icon">✅</div>
+        <h1 class="confirm__title">Loan confirmed</h1>
+        <p class="confirm__text">
+            Your loan was created successfully.
+            {% if loanId %}
+                <span class="muted">(Loan #{{ loanId }})</span>
+            {% endif %}
+        </p>
 
-    <div class="loan-lines">
-      <div>Confirmation: #{{ loanId }}</div>
-      <div>Book: {{ book.title }}</div>
-      <div>Borrowed Date: {{ checkout }}</div>
-      <div>Due Date: {{ due }}</div>
+        <div class="confirm__actions">
+            <a class="btn btn--primary" href="/loans">View my loans</a>
+            <a class="btn btn--ghost" href="/">Back to books</a>
+        </div>
     </div>
-
-    <div class="loan-actions">
-      <a class="btn" href="/loans">View my loans</a>
-    </div>
-  </div>
 </div>
 {% endblock %}

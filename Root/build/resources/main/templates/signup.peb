@@ -1,0 +1,34 @@
+{% extends "base" %}
+
+{% block content %}
+<div class="auth">
+    <div class="panel">
+        <h1 class="panel__title">Create account</h1>
+        <p class="panel__subtitle">Make a new account to loan books.</p>
+
+        {% if error %}
+            <div class="alert alert--error">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" action="/signup" class="form">
+            <label class="label">Name</label>
+            <input class="input" type="text" name="name" required placeholder="Your name">
+
+            <label class="label">Email</label>
+            <input class="input" type="email" name="email" required placeholder="you@example.com">
+
+            <label class="label">Address (optional)</label>
+            <input class="input" type="text" name="address" placeholder="Street, City, Postal Code">
+
+            <label class="label">Password</label>
+            <input class="input" type="password" name="password" required placeholder="Create a password">
+
+            <button class="btn btn--primary btn--block" type="submit">Create account</button>
+        </form>
+
+        <div class="panel__footer">
+            Already have an account? <a class="link" href="/login">Sign in</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
